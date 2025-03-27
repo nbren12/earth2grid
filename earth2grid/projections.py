@@ -69,7 +69,7 @@ class Grid(base.Grid):
 
     @property
     def lat_lon(self):
-        mesh_y, mesh_x = np.meshgrid(self.y, self.x, indexing='ij')
+        mesh_x, mesh_y = np.meshgrid(self.x, self.y)
         lon, lat = self.projection.inverse_project(mesh_x, mesh_y)
         return [lat, lon]
 
@@ -91,14 +91,18 @@ class Grid(base.Grid):
         x, y = self.projection.project(lon, lat)
 
         return BilinearInterpolator(
-            x_coords=torch.from_numpy(self.y),
-            y_coords=torch.from_numpy(self.x),
-            x_query=torch.from_numpy(y),
-            y_query=torch.from_numpy(x),
+            x_coords=torch.from_numpy(self.x),
+            y_coords=torch.from_numpy(self.y),
+            x_query=torch.from_numpy(x),
+            y_query=torch.from_numpy(y),
         )
 
     def visualize(self, data):
         raise NotImplementedError()
+
+    def __getitem__(self, idxs):
+        yidxs, xidxs = idxs
+        return Grid(self.projection, x=self.x[xidxs], y=self.y[yidxs])
 
     def to_pyvista(self):
         if pv is None:

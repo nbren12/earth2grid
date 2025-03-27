@@ -12,6 +12,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+
+Conventions:
+
+in positional function arguments: f(lon, lat) instead of f(lat, lon). And likewise for f(x,y)
+For now, get_bilinear_regridder_to(lat, lon) is grandfathered in.
+
+For 2d coordinate arrays, the lon[y, x] so that x is the fastest changing dimension in
+a row major array.
+
+"""
 import abc
 
 import numpy as np
@@ -28,7 +39,7 @@ except ImportError:
 
 class Projection(abc.ABC):
     @abc.abstractmethod
-    def project(self, lat: np.ndarray, lon: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def project(self, lon: np.ndarray, lat: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute the projected x,y from lat,lon.
         """
@@ -58,8 +69,9 @@ class Grid(base.Grid):
 
     @property
     def lat_lon(self):
-        mesh_x, mesh_y = np.meshgrid(self.x, self.y, indexing='ij')
-        return self.projection.inverse_project(mesh_x, mesh_y)
+        mesh_y, mesh_x = np.meshgrid(self.y, self.x, indexing='ij')
+        lon, lat = self.projection.inverse_project(mesh_x, mesh_y)
+        return [lat, lon]
 
     @property
     def lat(self):
@@ -71,18 +83,18 @@ class Grid(base.Grid):
 
     @property
     def shape(self):
-        return (len(self.x), len(self.y))
+        return (len(self.y), len(self.x))
 
     def get_bilinear_regridder_to(self, lat: np.ndarray, lon: np.ndarray):
         """Get regridder to the specified lat and lon points"""
 
-        x, y = self.projection.project(lat, lon)
+        x, y = self.projection.project(lon, lat)
 
         return BilinearInterpolator(
-            x_coords=torch.from_numpy(self.x),
-            y_coords=torch.from_numpy(self.y),
-            x_query=torch.from_numpy(x),
-            y_query=torch.from_numpy(y),
+            x_coords=torch.from_numpy(self.y),
+            y_coords=torch.from_numpy(self.x),
+            x_query=torch.from_numpy(y),
+            y_query=torch.from_numpy(x),
         )
 
     def visualize(self, data):

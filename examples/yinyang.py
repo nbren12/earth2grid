@@ -55,11 +55,10 @@ y2y.float()
 
 x = torch.ones(ying.shape)
 y = y2y(x)
-y = y.reshape(yang.shape)
+# y = y.reshape(yang.shape)
 print("mask", torch.isnan(y).sum() / y.numel())
 
 plt.figure()
-# TODO fix yang.shape, it is the opposite it should be
-plt.imshow(y.reshape(*ying.shape))
+plt.imshow(y)
 plt.colorbar()
 plt.show()

@@ -17,15 +17,15 @@ import numpy as np
 import pyvista as pv
 import torch
 
-from earth2grid.yinyang import Yang, Ying
+from earth2grid.yinyang import Yang, Ying, valid_region
 
 nlat = 721
 nlon = 1440
 delta = 64
 
-nlat = 37
-nlon = 72
-delta = 0
+# nlat = 37
+# nlon = 72
+# delta = 0
 
 ying = Ying(nlat, nlon, delta)
 yang = Yang(nlat, nlon, delta)
@@ -60,5 +60,10 @@ print("mask", torch.isnan(y).sum() / y.numel())
 
 plt.figure()
 plt.imshow(y)
+plt.colorbar()
+plt.show()
+
+plt.figure()
+plt.imshow(valid_region(nlat, nlon, delta))
 plt.colorbar()
 plt.show()

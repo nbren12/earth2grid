@@ -92,3 +92,17 @@ class YangProjection(projections.Projection):
 def Yang(nlat, nlon, delta):
     ying = Ying(nlat, nlon, delta)
     return projections.Grid(YangProjection(), ying.lon, ying.lat)
+
+
+def valid_region(nlat, nlon, delta):
+    """Return a valid region that partitions S2 evenly between Ying and Yang.
+
+    This  is defined by the points inside the curve
+
+        yang_lon, yang_lat = yang_project(ying_iproject(lon, lat))
+        |yang_lat| < 45 | (|lon| < 90 & |lat| < 45)
+
+    """
+    yang = Yang(nlat, nlon, delta)
+    central_region = (yang.x >= -90) & (yang.x < 90) & (yang.y < 45) & (yang.y >= -45)
+    return (yang.lat >= 45) | (yang.lat < -45) | central_region

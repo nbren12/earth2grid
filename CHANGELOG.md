@@ -2,6 +2,7 @@
 
 ## latest
 - `earth2grid.latlon.BilinearInterpolator` moved to `earth2grid.BilinearInterpolator`
+- added new module `earth2grid.yingyang` for Ying-Yang overset grids
 
 ## 2024.8.1
 

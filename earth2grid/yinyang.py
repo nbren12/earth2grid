@@ -101,9 +101,9 @@ def Yang(nlat, nlon, delta):
 
 
 def is_yang(lon, lat):
-    """Return a valid region that partitions S2 evenly between Ying and Yang.
+    """Return if a point is in the region owned yang grid.
 
-    This  is defined by the points inside the curve
+    This is defined by the points outside the curve
 
         yang_lon, yang_lat = yang_project(ying_iproject(lon, lat))
         |yang_lat| < 45 | (|lon| < 90 & |lat| < 45)

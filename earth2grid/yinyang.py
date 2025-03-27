@@ -101,7 +101,7 @@ def Yang(nlat, nlon, delta):
 
 
 def is_yang(lon, lat):
-    """Return if a point is in the region owned yang grid.
+    """Return if a point is in the region owned by the yang grid.
 
     This is defined by the points outside the curve
 

@@ -69,15 +69,7 @@ class YangProjection(projections.Projection):
         lat = torch.from_numpy(lat)
         lon = torch.from_numpy(lon)
 
-        lat = torch.deg2rad(lat)
-        lon = torch.deg2rad(lon)
-
-        x, y, z = spatial.ang2vec(lat=lat, lon=lon)
-        x, y, z = -x, z, y
-        lon, lat = spatial.vec2ang(x, y, z)
-
-        lat = torch.rad2deg(lat)
-        lon = torch.rad2deg(lon)
+        lon, lat = ying2yang(lon, lat)
 
         return lon.numpy(), lat.numpy()
 
@@ -89,12 +81,26 @@ class YangProjection(projections.Projection):
         return self.project(x, y)
 
 
+def ying2yang(lon, lat):
+    """translate between ying and yang coordinates"""
+    lat = torch.deg2rad(lat)
+    lon = torch.deg2rad(lon)
+
+    x, y, z = spatial.ang2vec(lat=lat, lon=lon)
+    x, y, z = -x, z, y
+    lon, lat = spatial.vec2ang(x, y, z)
+
+    lat = torch.rad2deg(lat)
+    lon = torch.rad2deg(lon)
+    return lon, lat
+
+
 def Yang(nlat, nlon, delta):
     ying = Ying(nlat, nlon, delta)
     return projections.Grid(YangProjection(), ying.lon, ying.lat)
 
 
-def valid_region(nlat, nlon, delta):
+def is_yang(lon, lat):
     """Return a valid region that partitions S2 evenly between Ying and Yang.
 
     This  is defined by the points inside the curve
@@ -103,6 +109,6 @@ def valid_region(nlat, nlon, delta):
         |yang_lat| < 45 | (|lon| < 90 & |lat| < 45)
 
     """
-    yang = Yang(nlat, nlon, delta)
-    central_region = (yang.x >= -90) & (yang.x < 90) & (yang.y < 45) & (yang.y >= -45)
-    return (yang.lat >= 45) | (yang.lat < -45) | central_region
+    x, y = ying2yang(lon, lat)
+    central_region = (x >= -90) & (x < 90) & (y < 45) & (y >= -45)
+    return (lat >= 45) | (lat < -45) | central_region

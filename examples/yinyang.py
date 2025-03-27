@@ -17,7 +17,7 @@ import numpy as np
 import pyvista as pv
 import torch
 
-from earth2grid.yinyang import Yang, Ying, valid_region
+from earth2grid.yinyang import Yang, Ying, is_yang
 
 nlat = 721
 nlon = 1440
@@ -64,6 +64,6 @@ plt.colorbar()
 plt.show()
 
 plt.figure()
-plt.imshow(valid_region(nlat, nlon, delta))
+plt.imshow(is_yang(torch.as_tensor(ying.lon), torch.as_tensor(ying.lat)))
 plt.colorbar()
 plt.show()
